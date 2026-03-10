@@ -63,7 +63,7 @@ User Interface
 Frontend (HTML / CSS / JS)
       │
       ▼
-Backend API (Python Flask)
+Backend API (Python , Gemini API Key)
       │
       ▼
 Gemini AI Model
@@ -79,7 +79,7 @@ Backend
 
 Python
 
-Flask / FastAPI
+FastAPI
 
 AI Model
 
@@ -200,6 +200,9 @@ Mac/Linux
 Install dependencies
 
 **pip install -r requirements.txt**
+
+**Create .env file **
+**write GEMINI_API_KEY='your_api_key_here'**
 
 ▶️ Running the Project
 
