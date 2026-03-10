@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CurricuForge | Premium AI Learning</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- GSAP for smooth premium animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Inter"', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            DEFAULT: '#4F46E5', // AI purple / indigo
+                            light: '#6366F1',
+                            dark: '#4338CA'
+                        },
+                        cyber: {
+                            DEFAULT: '#22D3EE', // Cyber cyan
+                            light: '#67E8F9',
+                            dark: '#06B6D4'
+                        },
+                        darkbg: {
+                            DEFAULT: '#0F172A', // Dark futuristic theme
+                            card: '#1E293B',
+                            border: '#334155'
+                        }
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                        'hero-glow': 'radial-gradient(circle at 50% 0%, rgba(79, 70, 229, 0.25) 0%, rgba(15, 23, 42, 0) 50%), radial-gradient(circle at 80% 20%, rgba(34, 211, 238, 0.15) 0%, rgba(15, 23, 42, 0) 40%)'
+                    },
+                    boxShadow: {
+                        'glow-brand': '0 0 20px -5px rgba(79, 70, 229, 0.5)',
+                        'glow-cyber': '0 0 20px -5px rgba(34, 211, 238, 0.5)',
+                        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.3)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0F172A;
+            color: #F8FAFC;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism Classes */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: var(--tw-shadow-glass);
+        }
+
+        .glass-nav {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Ambient Background Animations */
+        .ambient-blob {
+            position: absolute;
+            filter: blur(80px);
+            opacity: 0.5;
+            z-index: -1;
+            animation: float 20s infinite alternate ease-in-out;
+            pointer-events: none;
+        }
+
+        .blob-1 {
+            top: -10%;
+            left: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: rgba(79, 70, 229, 0.2);
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            bottom: -20%;
+            right: -10%;
+            width: 60vw;
+            height: 60vw;
+            background: rgba(34, 211, 238, 0.15);
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(30px, -50px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+        }
+
+        /* Text Gradients */
+        .text-gradient {
+            background: linear-gradient(135deg, #818CF8, #22D3EE);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, #4F46E5, #4338CA);
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.6);
+        }
+
+        .btn-primary:hover:after {
+            left: 100%;
+        }
+
+        .btn-secondary {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #F8FAFC;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(34, 211, 238, 0.5);
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Smooth reveal util */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+    </style>
+</head>
+
+<body class="relative">
+
+    <!-- Ambient background -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-[-1]">
+        <div class="ambient-blob blob-1"></div>
+        <div class="ambient-blob blob-2"></div>
+        <div
+            class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wMykiLz48L3N2Zz4=')] opacity-50">
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="glass-nav fixed top-0 w-full z-50">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                <div
+                    class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand to-cyber flex items-center justify-center shadow-glow-brand">
+                    <i class="ph-bold ph-lightning text-white text-xl"></i>
+                </div>
+                <span class="font-bold text-xl tracking-tight text-white">CurricuForge</span>
+            </a>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#features"
+                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">Features</a>
+                <a href="#how-it-works"
+                    class="text-sm font-medium text-slate-300 hover:text-white transition-colors">How it works</a>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="/login" class="text-sm font-medium text-slate-300 hover:text-white transition-colors px-2">Log
+                    in</a>
+                <a href="/login"
+                    class="btn-primary px-5 py-2.5 rounded-lg text-sm font-semibold tracking-wide">Dashboard</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 1. HERO SECTION -->
+    <section class="relative pt-40 pb-20 lg:pt-52 lg:pb-32 px-6 flex flex-col items-center justify-center text-center">
+        <!-- Badge -->
+        <div class="glass-panel inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-8 heroic-stagger">
+            <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyber opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-cyber"></span>
+            </span>
+            <span class="text-xs font-semibold tracking-wider text-slate-300 uppercase">Engine v2 Online</span>
+        </div>
+
+        <h1
+            class="text-5xl md:text-6xl lg:text-7xl font-extrabold max-w-5xl tracking-tight mb-6 heroic-stagger leading-tight text-white">
+            Forge Intelligent Curricula <br class="hidden md:block" /> with <span class="text-gradient">AI
+                Pathways</span>
+        </h1>
+
+        <p class="text-lg md:text-xl text-slate-400 max-w-2xl mb-10 font-medium heroic-stagger leading-relaxed">
+            The world's most advanced learning synthesizer. Generate hyper-personalized, dynamic academic pathways
+            tailored to your precise skill domain in seconds.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto heroic-stagger">
+            <a href="/signup"
+                class="btn-primary px-8 py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 text-base">
+                Generate Curriculum <i class="ph-bold ph-arrow-right"></i>
+            </a>
+        </div>
+
+    </section>
+
+    <!-- 2. FEATURES SECTION -->
+    <section id="features" class="py-24 px-6 relative z-10">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Mastering Scale and Precision</h2>
+                <p class="text-slate-400 max-w-2xl mx-auto">Our generative architecture evaluates market demands to
+                    construct the exact syllabus you need for success.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Card 1 -->
+                <div
+                    class="glass-panel p-8 rounded-2xl hover:-translate-y-2 hover:border-brand/50 transition-all duration-300 group reveal">
+                    <div
+                        class="w-12 h-12 rounded-lg bg-brand/20 border border-brand/30 flex items-center justify-center text-brand mb-6 group-hover:scale-110 group-hover:bg-brand group-hover:text-white transition-all shadow-glow-brand">
+                        <i class="ph-fill ph-brain text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3 tracking-wide">AI Curriculum Gen</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Multi-agent systems parse millions of data points
+                        to generate syllabi vastly superior to static textbooks.</p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="glass-panel p-8 rounded-2xl hover:-translate-y-2 hover:border-cyber/50 transition-all duration-300 group reveal"
+                    style="transition-delay: 50ms;">
+                    <div
+                        class="w-12 h-12 rounded-lg bg-cyber/20 border border-cyber/30 flex items-center justify-center text-cyber mb-6 group-hover:scale-110 group-hover:bg-cyber group-hover:text-white transition-all shadow-glow-cyber">
+                        <i class="ph-fill ph-path text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3 tracking-wide">Skill-Based Paths</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Calculates the delta between your current stack
+                        and target role, removing redundant learning.</p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="glass-panel p-8 rounded-2xl hover:-translate-y-2 hover:border-purple-500/50 transition-all duration-300 group reveal"
+                    style="transition-delay: 100ms;">
+                    <div
+                        class="w-12 h-12 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-6 group-hover:scale-110 group-hover:bg-purple-500 group-hover:text-white transition-all shadow-[0_0_20px_-5px_rgba(168,85,247,0.5)]">
+                        <i class="ph-fill ph-buildings text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3 tracking-wide">Industry-Aligned</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Direct correlation with active market job
+                        requirements. Learn exactly what employers are seeking.</p>
+                </div>
+
+                <!-- Card 4 -->
+                <div
+                    class="glass-panel p-8 rounded-2xl hover:-translate-y-2 hover:border-blue-500/50 transition-all duration-300 group reveal">
+                    <div
+                        class="w-12 h-12 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 mb-6 group-hover:scale-110 group-hover:bg-blue-500 group-hover:text-white transition-all shadow-[0_0_20px_-5px_rgba(59,130,246,0.5)]">
+                        <i class="ph-fill ph-calendar text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3 tracking-wide">Dynamic Semester Planning</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Automatically paces your learning across weeks and
+                        semesters based on your input bandwidth.</p>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="glass-panel md:col-span-2 lg:col-span-2 p-8 rounded-2xl hover:-translate-y-2 hover:border-brand/50 transition-all duration-300 group reveal relative overflow-hidden"
+                    style="transition-delay: 50ms;">
+
+                    <!-- Decorative BG Element -->
+                    <div
+                        class="absolute -right-10 -bottom-10 w-48 h-48 bg-gradient-to-br from-brand/20 to-transparent blur-[40px] rounded-full pointer-events-none">
+                    </div>
+
+                    <div
+                        class="w-12 h-12 rounded-lg bg-brand/20 border border-brand/30 flex items-center justify-center text-brand mb-6 group-hover:scale-110 group-hover:bg-brand group-hover:text-white transition-all shadow-glow-brand relative z-10">
+                        <i class="ph-fill ph-tree-structure text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3 tracking-wide relative z-10">Academic Topic Structuring
+                    </h3>
+                    <p class="text-sm text-slate-400 leading-relaxed max-w-2xl relative z-10">Generates a deeply nested
+                        hierarchical structure: Semester → Module → Topics. Each node is engineered for comprehensive
+                        understanding with associated project deliverables and gap analysis warnings.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. HOW IT WORKS -->
+    <section id="how-it-works" class="py-24 px-6 relative z-10 bg-darkbg-card/30 border-y border-white/5">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16 reveal">
+                <span class="text-cyber text-sm font-bold tracking-widest uppercase mb-2 block">Workflow</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Three specific phases.</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 relative">
+                <!-- Connector Line -->
+                <div
+                    class="hidden md:block absolute top-[60px] left-[15%] right-[15%] h-px bg-gradient-to-r from-transparent via-brand to-transparent z-0 opacity-50">
+                </div>
+
+                <!-- Step 1 -->
+                <div class="relative z-10 text-center reveal">
+                    <div
+                        class="w-16 h-16 mx-auto rounded-full bg-slate-900 border-2 border-slate-700 flex items-center justify-center text-xl font-bold text-slate-400 mb-6 shadow-glass relative group">
+                        <div
+                            class="absolute inset-0 rounded-full border border-cyber/0 group-hover:border-cyber/100 scale-110 transition-all duration-500">
+                        </div>
+                        1
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">Enter Skills & Domain</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Provide your current foundational proficiencies
+                        and the exact industry role you wish to target.</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="relative z-10 text-center reveal" style="transition-delay: 100ms;">
+                    <div
+                        class="w-16 h-16 mx-auto rounded-full bg-brand border-2 border-brand-light flex items-center justify-center text-xl font-bold text-white mb-6 shadow-glow-brand relative group">
+                        <div
+                            class="absolute inset-0 rounded-full border border-brand/0 group-hover:border-brand/100 scale-110 transition-all duration-500">
+                        </div>
+                        <i class="ph-bold ph-cpu text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">AI Generates Curriculum</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Neural multi-agents execute a gap analysis and
+                        compile a weekly syllabus tailored to your metric endpoints.</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="relative z-10 text-center reveal" style="transition-delay: 200ms;">
+                    <div
+                        class="w-16 h-16 mx-auto rounded-full bg-slate-900 border-2 border-slate-700 flex items-center justify-center text-xl font-bold text-slate-400 mb-6 shadow-glass relative group">
+                        <div
+                            class="absolute inset-0 rounded-full border border-cyber/0 group-hover:border-cyber/100 scale-110 transition-all duration-500">
+                        </div>
+                        3
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">Structured Learning Plan</h3>
+                    <p class="text-sm text-slate-400 leading-relaxed">Receive your high-fidelity, interactive academic
+                        roadmap complete with weekly milestones.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. BENEFITS / CTA -->
+    <section class="py-24 px-6 relative z-10 overflow-hidden">
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[500px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-brand/10 to-transparent z-[-1] pointer-events-none">
+        </div>
+
+        <div
+            class="max-w-4xl mx-auto glass-panel p-10 md:p-14 rounded-[2rem] text-center reveal border border-brand/30 shadow-glow-brand relative">
+
+            <h2 class="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">
+                Architect Your Intelligence <br>
+                <span class="text-brand-light">Faster Than Ever.</span>
+            </h2>
+
+            <div class="flex flex-wrap justify-center gap-4 mb-10">
+                <span
+                    class="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-medium text-slate-300 flex items-center gap-2"><i
+                        class="ph-fill ph-check-circle text-brand"></i> Faster curriculum creation</span>
+                <span
+                    class="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-medium text-slate-300 flex items-center gap-2"><i
+                        class="ph-fill ph-check-circle text-brand"></i> Industry relevant learning</span>
+                <span
+                    class="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-medium text-slate-300 flex items-center gap-2"><i
+                        class="ph-fill ph-check-circle text-brand"></i> Adaptive course structure</span>
+                <span
+                    class="px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm font-medium text-slate-300 flex items-center gap-2"><i
+                        class="ph-fill ph-check-circle text-brand"></i> AI-powered syllabus design</span>
+            </div>
+
+            <a href="/signup"
+                class="btn-primary inline-flex px-10 py-4 rounded-xl font-bold text-lg items-center justify-center gap-3">
+                Initialize System <i class="ph-bold ph-arrow-right"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- 5. FOOTER -->
+    <footer class="border-t border-white/10 bg-slate-900/50 pt-16 pb-8 px-6 relative z-10">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+            <div class="md:col-span-2">
+                <div class="flex items-center gap-2 mb-4">
+                    <i class="ph-bold ph-lightning text-brand text-xl"></i>
+                    <span class="font-bold text-lg tracking-tight text-white">CurricuForge</span>
+                </div>
+                <p class="text-slate-400 text-sm max-w-sm leading-relaxed">
+                    A premium AI SaaS platform dedicated to generating highly personalized, industry-aligned academic
+                    learning pathways using state-of-the-art multi-agent generative models.
+                </p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-4 tracking-wide uppercase text-sm">Platform</h4>
+                <ul class="space-y-3">
+                    <li><a href="#" class="text-slate-400 hover:text-brand transition-colors text-sm">About</a></li>
+                    <li><a href="#" class="text-slate-400 hover:text-brand transition-colors text-sm">Documentation</a>
+                    </li>
+                    <li><a href="#" class="text-slate-400 hover:text-brand transition-colors text-sm">Github</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-4 tracking-wide uppercase text-sm">Connect</h4>
+                <ul class="space-y-3">
+                    <li><a href="#" class="text-slate-400 hover:text-cyber transition-colors text-sm">Contact
+                            Support</a></li>
+                    <li><a href="#" class="text-slate-400 hover:text-cyber transition-colors text-sm">Twitter / X</a>
+                    </li>
+                    <li><a href="#" class="text-slate-400 hover:text-cyber transition-colors text-sm">LinkedIn</a></li>
+                </ul>
+            </div>
+        </div>
+        <div
+            class="max-w-7xl mx-auto border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500">
+            <p>&copy; 2026 CurricuForge. Built for future engineers.</p>
+            <div class="flex gap-4 mt-4 md:mt-0">
+                <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Hero Intro Anim
+            gsap.fromTo('.heroic-stagger',
+                { y: 30, opacity: 0 },
+                { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: 'power3.out', delay: 0.2 }
+            );
+
+            // Scroll Reveals
+            gsap.registerPlugin(ScrollTrigger);
+            gsap.utils.toArray('.reveal').forEach(elem => {
+                gsap.fromTo(elem,
+                    { y: 40, opacity: 0 },
+                    {
+                        y: 0, opacity: 1,
+                        duration: 0.8,
+                        ease: 'power2.out',
+                        scrollTrigger: {
+                            trigger: elem,
+                            start: 'top 85%',
+                        }
+                    }
+                );
+            });
+
+            // Navbar blur effect on scroll
+            window.addEventListener('scroll', () => {
+                const nav = document.querySelector('.glass-nav');
+                if (window.scrollY > 50) {
+                    nav.classList.add('shadow-glass');
+                } else {
+                    nav.classList.remove('shadow-glass');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

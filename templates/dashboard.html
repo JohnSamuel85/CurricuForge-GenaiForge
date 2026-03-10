@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CurricuForge | App Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- HTML2PDF for PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Inter"', 'sans-serif'] },
+                    colors: {
+                        brand: {
+                            DEFAULT: '#4F46E5',
+                            light: '#6366F1',
+                            dark: '#4338CA'
+                        },
+                        cyber: {
+                            DEFAULT: '#22D3EE',
+                            light: '#67E8F9',
+                            dark: '#06B6D4'
+                        },
+                        darkbg: {
+                            DEFAULT: '#0F172A',
+                            card: '#1E293B',
+                            border: '#334155'
+                        }
+                    },
+                    boxShadow: {
+                        'glow-brand': '0 0 20px -5px rgba(79, 70, 229, 0.5)',
+                        'glow-cyber': '0 0 20px -5px rgba(34, 211, 238, 0.5)',
+                        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.3)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0F172A;
+            color: #F8FAFC;
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: var(--tw-shadow-glass);
+            transition: all 0.3s ease;
+        }
+
+        .glass-panel-hover:hover {
+            border-color: rgba(79, 70, 229, 0.5);
+            background: rgba(30, 41, 59, 0.8);
+            transform: translateY(-2px);
+            box-shadow: var(--tw-shadow-glow-brand);
+        }
+
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(34, 211, 238, 0.1) 0%, transparent 40%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Sidebar Nav */
+        .sidebar {
+            transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .nav-item {
+            transition: all 0.3s ease;
+            border-left: 2px solid transparent;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(79, 70, 229, 0.15) 0%, transparent 100%);
+            border-left-color: #4F46E5;
+            color: #F8FAFC;
+        }
+
+        .nav-item.active i {
+            color: #22D3EE;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, #4F46E5, #4338CA);
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.6);
+        }
+
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #F8FAFC;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #22D3EE;
+        }
+
+        /* Custom Inputs */
+        .cyber-input {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .cyber-input:focus {
+            outline: none;
+            border-color: #4F46E5;
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+        }
+
+        /* Interactive Choice Cards */
+        .choice-card {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .choice-card:hover {
+            border-color: rgba(34, 211, 238, 0.4);
+            background: rgba(30, 41, 59, 0.8);
+        }
+
+        .choice-card.selected {
+            border-color: #4F46E5;
+            background: rgba(79, 70, 229, 0.1);
+            box-shadow: inset 0 0 0 1px #4F46E5;
+        }
+
+        .choice-card.selected i.icon-check {
+            display: block;
+            color: #22D3EE;
+        }
+
+        .choice-card i.icon-check {
+            display: none;
+        }
+
+        /* Views */
+        .app-view {
+            display: none;
+            opacity: 0;
+        }
+
+        .app-view.active-view {
+            display: block;
+            animation: viewFadeIn 0.4s forwards cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes viewFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4F46E5;
+        }
+
+        /* AI Thinking Animation */
+        #ai-loader {
+            display: none;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+        }
+
+        #ai-loader.active {
+            display: flex;
+        }
+
+        .typewriter-text {
+            overflow: hidden;
+            border-right: .15em solid #22D3EE;
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: .15em;
+            animation: typing 2.5s steps(30, end) infinite, blink-caret .75s step-end infinite;
+        }
+
+        @keyframes typing {
+            0% {
+                width: 0
+            }
+
+            50% {
+                width: 100%
+            }
+
+            100% {
+                width: 100%
+            }
+        }
+
+        @keyframes blink-caret {
+
+            from,
+            to {
+                border-color: transparent
+            }
+
+            50% {
+                border-color: #22D3EE;
+            }
+        }
+
+        .pulse-core {
+            box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7);
+            animation: pulse-ring 2s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7);
+            }
+
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 30px rgba(79, 70, 229, 0);
+            }
+
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+            }
+        }
+
+        /* Collapsible Results */
+        .result-module {
+            transition: all 0.3s ease;
+        }
+
+        .result-module .module-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .result-module.open .module-content {
+            max-height: 800px;
+        }
+
+        .result-module.open .caret-icon {
+            transform: rotate(180deg);
+            color: #22D3EE;
+        }
+
+        /* Range Slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: rgba(255, 255, 255, 0.1);
+            height: 6px;
+            border-radius: 3px;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #22D3EE;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+        }
+    </style>
+</head>
+
+<body class="flex h-screen">
+
+    <div class="ambient-bg"></div>
+
+    <!-- AI Thinking Loader -->
+    <div id="ai-loader" class="fixed inset-0 bg-darkbg/90 flex-col items-center justify-center">
+        <div class="relative w-32 h-32 flex items-center justify-center mb-8">
+            <div class="absolute inset-0 rounded-full border-t-2 border-l-2 border-brand animate-spin"></div>
+            <div
+                class="absolute inset-2 rounded-full border-r-2 border-b-2 border-cyber animate-[spin_1.5s_reverse_linear_infinite]">
+            </div>
+            <div
+                class="w-16 h-16 rounded-full bg-brand/20 pulse-core flex items-center justify-center backdrop-blur-sm border border-brand/50">
+                <i class="ph-fill ph-brain text-4xl text-cyber"></i>
+            </div>
+        </div>
+        <div class="text-cyber font-mono text-lg font-bold tracking-widest typewriter-text">AI is forging your
+            curriculum...</div>
+        <div class="mt-8 flex gap-2">
+            <div class="w-1.5 h-1.5 rounded-full bg-brand animate-ping" style="animation-delay: 0s"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-cyber animate-ping" style="animation-delay: 0.2s"></div>
+            <div class="w-1.5 h-1.5 rounded-full bg-brand animate-ping" style="animation-delay: 0.4s"></div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <aside
+        class="w-64 glass-panel border-r border-t-0 border-b-0 border-l-0 flex flex-col z-[40] relative sidebar transition-transform md:translate-x-0 absolute md:relative h-full"
+        id="sidebar">
+        <a href="/" class="h-20 flex items-center px-6 border-b border-white/5 hover:bg-white/5 transition-colors">
+            <div
+                class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand to-cyber flex items-center justify-center shadow-glow-brand mr-3">
+                <i class="ph-bold ph-lightning text-white text-sm"></i>
+            </div>
+            <span class="font-bold text-lg tracking-tight text-white">CurricuForge</span>
+        </a>
+
+        <div class="flex-1 py-6 px-4 flex flex-col gap-2 overflow-y-auto w-full">
+            <button
+                class="nav-item active w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-white group"
+                data-target="view-dashboard">
+                <i class="ph-fill ph-squares-four text-xl group-hover:text-cyber transition-colors"></i> Dashboard
+            </button>
+            <button
+                class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-white group"
+                data-target="view-generator">
+                <i class="ph-fill ph-magic-wand text-xl group-hover:text-cyber transition-colors"></i> Generate
+                Curriculum
+            </button>
+            <button
+                class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-white group"
+                data-target="view-library">
+                <i class="ph-fill ph-folder-notch-open text-xl group-hover:text-cyber transition-colors"></i> Curriculum
+                Library
+            </button>
+            <button
+                class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-white group"
+                data-target="view-saved">
+                <i class="ph-fill ph-bookmark-simple text-xl group-hover:text-cyber transition-colors"></i> Saved
+                Roadmaps
+            </button>
+            <button
+                class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-white group"
+                data-target="view-settings">
+                <i class="ph-fill ph-gear text-xl group-hover:text-cyber transition-colors"></i> Settings
+            </button>
+        </div>
+
+        <div class="p-4 border-t border-white/5">
+            <div class="glass-panel p-3 rounded-xl flex items-center justify-between">
+                <div class="flex flex-col overflow-hidden w-[140px]">
+                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Active Agent</span>
+                    <span id="user-email" class="text-xs font-semibold text-white truncate w-full">user@nexus.io</span>
+                </div>
+                <button id="logout-btn"
+                    class="w-8 h-8 rounded-lg bg-white/5 hover:bg-red-500/20 text-slate-400 hover:text-red-400 flex items-center justify-center transition-colors">
+                    <i class="ph-bold ph-power"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-full relative overflow-hidden">
+
+        <!-- Mobile Header -->
+        <header
+            class="md:hidden glass-panel h-16 flex items-center justify-between px-4 z-40 border-b border-t-0 border-x-0 relative">
+            <a href="/" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <div class="w-6 h-6 rounded bg-gradient-to-br from-brand to-cyber flex items-center justify-center"><i
+                        class="ph-bold ph-lightning text-white text-[10px]"></i></div>
+                <span class="font-bold text-white">CurricuForge</span>
+            </a>
+            <button id="mobile-menu-btn" class="text-white p-2"><i class="ph-bold ph-list text-xl"></i></button>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6 lg:p-10 relative">
+
+            <!-- VIEW: DASHBOARD -->
+            <section id="view-dashboard" class="app-view active-view max-w-6xl mx-auto w-full">
+                <!-- Welcome Panel -->
+                <div
+                    class="glass-panel rounded-3xl p-8 lg:p-10 mb-8 relative overflow-hidden box-border border-l-4 border-l-brand">
+                    <div
+                        class="absolute top-0 right-0 w-64 h-64 bg-brand/20 rounded-full blur-[80px] -z-10 translate-x-1/2 -translate-y-1/2">
+                    </div>
+                    <div
+                        class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative z-10">
+                        <div>
+                            <h1 class="text-3xl font-bold text-white mb-2">Welcome to the Nexus</h1>
+                            <p class="text-slate-400 font-medium">Your AI-powered learning orchestration center is
+                                active.</p>
+                        </div>
+                        <button
+                            class="btn-primary px-6 py-3 rounded-xl font-bold flex items-center gap-2 shadow-glow-brand"
+                            onclick="switchView('view-generator')">
+                            Forge New Path <i class="ph-bold ph-lightning"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <h2 class="text-lg font-bold text-white mb-4 uppercase tracking-wider text-sm">System Telemetry</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="glass-panel glass-panel-hover p-6 rounded-2xl flex items-center gap-5">
+                        <div
+                            class="w-14 h-14 rounded-full bg-brand/10 border border-brand/20 flex items-center justify-center shrink-0">
+                            <i class="ph-fill ph-stack text-2xl text-brand-light"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Generated
+                                Curricula</p>
+                            <p class="text-3xl font-extrabold text-white" id="stat-total">0</p>
+                        </div>
+                    </div>
+                    <div class="glass-panel glass-panel-hover p-6 rounded-2xl flex items-center gap-5">
+                        <div
+                            class="w-14 h-14 rounded-full bg-cyber/10 border border-cyber/20 flex items-center justify-center shrink-0">
+                            <i class="ph-fill ph-books text-2xl text-cyber"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Active Modules
+                            </p>
+                            <p class="text-3xl font-extrabold text-white" id="stat-modules">0</p>
+                        </div>
+                    </div>
+                    <div class="glass-panel glass-panel-hover p-6 rounded-2xl flex items-center gap-5">
+                        <div
+                            class="w-14 h-14 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center shrink-0 relative">
+                            <i class="ph-fill ph-pulse text-2xl text-green-400"></i>
+                            <div
+                                class="absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full animate-pulse border border-darkbg">
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Neural Engine
+                                Status</p>
+                            <p class="text-xl font-bold text-green-400">Online & Synthesizing</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions / Quick Library Preview -->
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold text-white uppercase tracking-wider text-sm">Recent Deployments</h2>
+                    <button class="text-xs font-bold text-cyber hover:text-white transition-colors"
+                        onclick="switchView('view-library')">VIEW ARCHIVE <i
+                            class="ph-bold ph-arrow-right ml-1"></i></button>
+                </div>
+                <div id="dashboard-recent" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+
+                <div id="dashboard-empty"
+                    class="hidden text-center py-20 glass-panel rounded-3xl border-dashed border-white/20">
+                    <div
+                        class="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-6 shadow-glass">
+                        <i class="ph-fill ph-folder-open text-brand text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">No learning architectures found.</h3>
+                    <p class="text-slate-400 font-medium mb-6">Initialize the generator to forge your first syllabus.
+                    </p>
+                </div>
+            </section>
+
+            <!-- VIEW: CURRICULUM GENERATOR -->
+            <section id="view-generator" class="app-view max-w-5xl mx-auto w-full">
+                <div class="mb-10 block text-center md:text-left">
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-2">Curriculum
+                        Synthesizer</h1>
+                    <p class="text-brand-light font-medium tracking-wide">Provide parameters to bootstrap the
+                        multi-agent generation sequence.</p>
+                </div>
+
+                <form id="roadmap-form" class="space-y-10" onsubmit="return false;">
+
+                    <!-- Interactive Section 1: Target Focus -->
+                    <div class="glass-panel rounded-3xl p-8 relative overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-brand/5 to-transparent pointer-events-none">
+                        </div>
+                        <h3 class="text-xs font-bold text-cyber uppercase tracking-widest mb-6 flex items-center gap-2">
+                            <i class="ph-fill ph-target"></i> Vector Parameters
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+                            <div>
+                                <label class="block text-sm font-semibold text-white mb-3 tracking-wide">Target Industry
+                                    / Domain Focus</label>
+                                <input type="text" id="domain-input"
+                                    class="cyber-input w-full px-5 py-4 rounded-xl text-base shadow-inner"
+                                    placeholder="e.g. Artificial Intelligence, FinTech, Blockchain">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-white mb-3 tracking-wide">Target Role /
+                                    Designation</label>
+                                <input type="text" id="role-input"
+                                    class="cyber-input w-full px-5 py-4 rounded-xl text-base shadow-inner"
+                                    placeholder="e.g. Senior Machine Learning Engineer">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label
+                                    class="block text-sm font-semibold text-white mb-3 tracking-wide flex justify-between">
+                                    <span>Current Skill Foundation</span>
+                                    <span
+                                        class="text-slate-400 font-normal text-xs bg-white/5 px-2 py-0.5 rounded">Comma
+                                        Separated</span>
+                                </label>
+                                <textarea id="skills-input" rows="3"
+                                    class="cyber-input w-full px-5 py-4 rounded-xl text-base shadow-inner resize-none"
+                                    placeholder="e.g. Python (Advanced), TensorFlow (Basic), Mathematics, Docker"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Section 2: Complexity & Duration -->
+                    <div class="glass-panel rounded-3xl p-8">
+                        <h3
+                            class="text-xs font-bold text-brand-light uppercase tracking-widest mb-6 flex items-center gap-2">
+                            <i class="ph-fill ph-sliders"></i> Algorithmic Calibration
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+
+                            <!-- Bandwidth Slider -->
+                            <div>
+                                <div class="flex justify-between items-end mb-4">
+                                    <label class="block text-sm font-semibold text-white tracking-wide">Weekly Bandwidth
+                                        Allocation</label>
+                                    <span class="text-2xl font-black text-cyber" id="hours-display">15h</span>
+                                </div>
+                                <input type="range" id="time-input" min="5" max="40" value="15" class="w-full mb-2">
+                                <div
+                                    class="flex justify-between text-xs font-bold text-slate-500 uppercase tracking-widest">
+                                    <span>5h (Casual)</span>
+                                    <span>40h (Intensive)</span>
+                                </div>
+                            </div>
+
+                            <!-- Degree / Pace Cards -->
+                            <div>
+                                <label class="block text-sm font-semibold text-white tracking-wide mb-4">Acceleration
+                                    Profile</label>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="choice-card p-4 rounded-xl relative" onclick="selectPace('Beginner')">
+                                        <i
+                                            class="ph-bold ph-check-circle icon-check absolute top-3 right-3 text-lg"></i>
+                                        <i class="ph-fill ph-student text-2xl text-slate-400 mb-2 block"></i>
+                                        <h4 class="text-white font-bold text-sm mb-1">Standard Path</h4>
+                                        <p class="text-[10px] text-slate-400 leading-tight">Focus on deep foundational
+                                            understanding.</p>
+                                    </div>
+                                    <div class="choice-card p-4 rounded-xl relative selected"
+                                        onclick="selectPace('Advanced')">
+                                        <i
+                                            class="ph-bold ph-check-circle icon-check absolute top-3 right-3 text-lg"></i>
+                                        <i class="ph-fill ph-rocket-launch text-2xl text-slate-400 mb-2 block"></i>
+                                        <h4 class="text-white font-bold text-sm mb-1">Accelerated</h4>
+                                        <p class="text-[10px] text-slate-400 leading-tight">Steep learning curve.
+                                            Assumes rapid digestion.</p>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="pace-input" value="Advanced">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end pt-4">
+                        <button type="button"
+                            class="btn-primary px-10 py-4 rounded-xl text-lg font-bold flex items-center gap-3 shadow-glow-brand hover:shadow-[0_0_30px_rgba(79,70,229,0.8)]"
+                            onclick="handleGenerate()">
+                            Initialize AI Generation <i class="ph-bold ph-magic-wand text-cyber"></i>
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- VIEW: ARCHIVE LIBRARY -->
+            <section id="view-library" class="app-view max-w-6xl mx-auto w-full">
+                <div class="mb-10 flex justify-between items-end border-b border-white/10 pb-6">
+                    <div>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-2">Curriculum
+                            Library</h1>
+                        <p class="text-slate-400 font-medium">Access your previously orchestrated learning pathways.</p>
+                    </div>
+                    <div class="hidden sm:flex gap-2">
+                        <div class="cyber-input px-4 py-2 rounded-lg flex items-center gap-2 w-64">
+                            <i class="ph-bold ph-magnifying-glass text-slate-400"></i>
+                            <input type="text" id="search-library"
+                                class="bg-transparent border-none outline-none text-sm w-full text-white placeholder-slate-500"
+                                placeholder="Search archive...">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="loading-state-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Skeletons -->
+                </div>
+
+                <div id="library-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </section>
+
+            <!-- VIEW: GENERATED RESULTS (The specific beautiful structure) -->
+            <section id="view-results" class="app-view max-w-5xl mx-auto w-full pb-20">
+                <div class="mb-6">
+                    <button
+                        class="btn-outline px-4 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 shadow-glass"
+                        onclick="switchView('view-library')">
+                        <i class="ph-bold ph-arrow-left"></i> Return to Library
+                    </button>
+                </div>
+
+                <div id="results-container"
+                    class="glass-panel p-0 rounded-3xl overflow-hidden relative border border-brand/30 shadow-glow-brand">
+                    <!-- Header -->
+                    <div
+                        class="bg-gradient-to-br from-slate-900 via-[#1e1b4b] to-slate-900 border-b border-brand/20 p-8 md:p-12 relative overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 w-96 h-96 bg-cyber/10 rounded-full blur-[100px] pointer-events-none">
+                        </div>
+
+                        <div class="flex justify-between items-start flex-wrap gap-4 relative z-10">
+                            <div>
+                                <span
+                                    class="bg-brand/20 text-brand-light border border-brand/30 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-4 inline-block">Architecture
+                                    Synthesized</span>
+                                <h1 class="text-4xl md:text-5xl font-black text-white tracking-tight leading-tight mb-3"
+                                    id="res-role">Role Title</h1>
+                                <p class="text-xl text-cyber font-medium flex items-center gap-2"><i
+                                        class="ph-fill ph-folder text-brand"></i> <span id="res-domain">Domain
+                                        Vector</span></p>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex gap-3">
+                                <button id="bookmark-btn" onclick="if(currentResultId) toggleSave(currentResultId)"
+                                    class="btn-outline w-12 h-12 rounded-xl flex items-center justify-center text-xl hover:text-cyber"
+                                    title="Save Curriculum"><i class="ph-fill ph-bookmark-simple"></i></button>
+                                <button
+                                    class="btn-outline w-12 h-12 rounded-xl flex items-center justify-center text-xl hover:text-green-400"
+                                    title="Export JSON"><i class="ph-fill ph-file-code"></i></button>
+                                <button
+                                    class="btn-primary w-12 h-12 rounded-xl flex items-center justify-center text-xl"
+                                    title="Download PDF" onclick="downloadPDF()"><i
+                                        class="ph-fill ph-file-pdf"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Metadata cards -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10 relative z-10">
+                            <div
+                                class="bg-slate-900/50 backdrop-blur border border-white/5 p-4 rounded-2xl text-center">
+                                <i class="ph-fill ph-clock text-slate-400 text-xl mb-1 block"></i>
+                                <span class="text-2xl font-black text-white block leading-none mb-1"
+                                    id="res-time">0h</span>
+                                <span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Weekly
+                                    Bandwidth</span>
+                            </div>
+                            <div
+                                class="bg-slate-900/50 backdrop-blur border border-white/5 p-4 rounded-2xl text-center">
+                                <i class="ph-fill ph-calendar text-slate-400 text-xl mb-1 block"></i>
+                                <span class="text-2xl font-black text-white block leading-none mb-1"
+                                    id="res-weeks">0</span>
+                                <span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Total
+                                    Weeks</span>
+                            </div>
+                            <div
+                                class="bg-slate-900/50 backdrop-blur border border-white/5 p-4 rounded-2xl text-center md:col-span-2">
+                                <i class="ph-fill ph-wrench text-slate-400 text-xl mb-1 block"></i>
+                                <span class="text-sm font-bold text-white block leading-tight truncate mb-1"
+                                    id="res-prereqs">None</span>
+                                <span class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Required
+                                    Foundations</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-8 md:p-12 relative bg-[#0F172A]">
+                        <!-- Abstract side line -->
+                        <div
+                            class="absolute left-10 md:left-14 top-12 bottom-12 w-px bg-gradient-to-b from-brand/50 via-cyber/30 to-transparent hidden md:block">
+                        </div>
+
+                        <!-- Intelligent insights -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 relative z-10">
+                            <div class="glass-panel p-6 rounded-2xl border-orange-500/30">
+                                <h3
+                                    class="text-xs font-bold uppercase tracking-widest text-orange-400 mb-4 flex items-center gap-2">
+                                    <i class="ph-fill ph-warning-circle text-lg"></i> Neural Gap Analysis
+                                </h3>
+                                <ul id="res-gap" class="space-y-3 text-sm text-slate-300"></ul>
+                            </div>
+                            <div class="glass-panel p-6 rounded-2xl border-brand/30">
+                                <h3
+                                    class="text-xs font-bold uppercase tracking-widest text-brand-light mb-4 flex items-center gap-2">
+                                    <i class="ph-fill ph-terminal-window text-lg"></i> Major Deliverables
+                                </h3>
+                                <ul id="res-projects" class="space-y-3 text-sm text-slate-300"></ul>
+                            </div>
+                        </div>
+
+                        <!-- Semantic Hierarchical Timeline -->
+                        <div class="relative z-10">
+                            <h2 class="text-2xl font-black text-white mb-8 tracking-tight flex items-center gap-3">
+                                <div
+                                    class="w-8 h-8 rounded-lg bg-cyber/20 flex items-center justify-center text-cyber border border-cyber/30">
+                                    <i class="ph-bold ph-list-dashes"></i>
+                                </div>
+                                Structured Execution Plan
+                            </h2>
+                            <div id="res-timeline" class="space-y-6">
+                                <!-- Modules injected here via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: SAVED ROADMAPS -->
+            <section id="view-saved" class="app-view max-w-6xl mx-auto w-full">
+                <div class="mb-10 flex justify-between items-end border-b border-white/10 pb-6">
+                    <div>
+                        <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-2">Saved Roadmaps
+                        </h1>
+                        <p class="text-slate-400 font-medium">Your bookmarked learning pathways, always ready to resume.
+                        </p>
+                    </div>
+                </div>
+
+                <div id="saved-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+                <div id="saved-empty"
+                    class="hidden text-center py-20 glass-panel rounded-3xl border-dashed border-white/20">
+                    <div
+                        class="w-20 h-20 rounded-2xl bg-white/5 flex items-center justify-center mx-auto mb-6 shadow-glass">
+                        <i class="ph-fill ph-bookmark-simple text-cyber text-4xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">No saved roadmaps yet.</h3>
+                    <p class="text-slate-400 font-medium mb-6">Open any curriculum and click the bookmark icon to save
+                        it here.</p>
+                    <button onclick="switchView('view-library')"
+                        class="btn-primary px-6 py-3 rounded-xl font-bold inline-flex items-center gap-2">
+                        Browse Library <i class="ph-bold ph-arrow-right"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- VIEW: SETTINGS -->
+            <section id="view-settings" class="app-view max-w-3xl mx-auto w-full">
+                <div class="mb-10 border-b border-white/10 pb-6">
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-2">Settings</h1>
+                    <p class="text-slate-400 font-medium">Manage your account preferences and security.</p>
+                </div>
+
+                <div class="space-y-6">
+
+                    <!-- Edit Profile -->
+                    <div class="glass-panel rounded-2xl p-8">
+                        <h2 class="text-lg font-bold text-white mb-1 flex items-center gap-3">
+                            <i class="ph-fill ph-user-circle text-brand text-2xl"></i> Edit Profile
+                        </h2>
+                        <p class="text-slate-400 text-sm mb-6">Your registered account information.</p>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-300 mb-2">Email Address</label>
+                                <div
+                                    class="cyber-input px-5 py-3 rounded-xl text-base flex items-center gap-3 text-slate-400">
+                                    <i class="ph-fill ph-envelope text-slate-500"></i>
+                                    <span id="settings-email" class="text-white font-medium">Loading...</span>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-2">Email changes require re-registration. Sign up
+                                    with your new email.</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-300 mb-2">Account Created</label>
+                                <div
+                                    class="cyber-input px-5 py-3 rounded-xl text-base flex items-center gap-3 text-slate-400">
+                                    <i class="ph-fill ph-calendar text-slate-500"></i>
+                                    <span id="settings-created" class="text-white font-medium">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Change Password -->
+                    <div class="glass-panel rounded-2xl p-8">
+                        <h2 class="text-lg font-bold text-white mb-1 flex items-center gap-3">
+                            <i class="ph-fill ph-lock-key text-cyber text-2xl"></i> Change Password
+                        </h2>
+                        <p class="text-slate-400 text-sm mb-6">Update your account password. Use a strong, unique
+                            passphrase.</p>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-300 mb-2">Current Password</label>
+                                <input type="password" id="current-password"
+                                    class="cyber-input w-full px-5 py-3 rounded-xl text-base"
+                                    placeholder="Enter current password">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-300 mb-2">New Password</label>
+                                <input type="password" id="new-password"
+                                    class="cyber-input w-full px-5 py-3 rounded-xl text-base"
+                                    placeholder="Enter new password (min 6 chars)">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-300 mb-2">Confirm New
+                                    Password</label>
+                                <input type="password" id="confirm-password"
+                                    class="cyber-input w-full px-5 py-3 rounded-xl text-base"
+                                    placeholder="Repeat new password">
+                            </div>
+                            <div id="pw-message" class="text-sm font-medium hidden"></div>
+                            <button onclick="handleChangePassword()"
+                                class="btn-primary px-6 py-3 rounded-xl font-bold flex items-center gap-2 w-full justify-center mt-2">
+                                <i class="ph-bold ph-lock-key"></i> Update Password
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Feedback -->
+                    <div class="glass-panel rounded-2xl p-8">
+                        <h2 class="text-lg font-bold text-white mb-1 flex items-center gap-3">
+                            <i class="ph-fill ph-chat-dots text-purple-400 text-2xl"></i> Give Feedback
+                        </h2>
+                        <p class="text-slate-400 text-sm mb-6">Help us improve CurricuForge. Your feedback directly
+                            shapes the platform.</p>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-300 mb-3">Rating</label>
+                                <div class="flex gap-2" id="rating-stars">
+                                    <button
+                                        class="star-btn text-3xl text-yellow-400 transition-transform hover:scale-125"
+                                        data-val="1" onclick="setRating(1)">★</button>
+                                    <button
+                                        class="star-btn text-3xl text-yellow-400 transition-transform hover:scale-125"
+                                        data-val="2" onclick="setRating(2)">★</button>
+                                    <button
+                                        class="star-btn text-3xl text-yellow-400 transition-transform hover:scale-125"
+                                        data-val="3" onclick="setRating(3)">★</button>
+                                    <button
+                                        class="star-btn text-3xl text-yellow-400 transition-transform hover:scale-125"
+                                        data-val="4" onclick="setRating(4)">★</button>
+                                    <button
+                                        class="star-btn text-3xl text-yellow-400 transition-transform hover:scale-125"
+                                        data-val="5" onclick="setRating(5)">★</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-300 mb-2">Your Feedback</label>
+                                <textarea id="feedback-text" rows="4"
+                                    class="cyber-input w-full px-5 py-3 rounded-xl text-base resize-none"
+                                    placeholder="Share your experience, suggestions, or any issues..."></textarea>
+                            </div>
+                            <div id="feedback-message" class="text-sm font-medium hidden"></div>
+                            <button onclick="handleFeedback()"
+                                class="btn-primary px-6 py-3 rounded-xl font-bold flex items-center gap-2 w-full justify-center">
+                                <i class="ph-bold ph-paper-plane-tilt"></i> Submit Feedback
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sign Out -->
+                    <div class="glass-panel rounded-2xl p-8 border border-red-500/20">
+                        <h2 class="text-lg font-bold text-white mb-1 flex items-center gap-3">
+                            <i class="ph-fill ph-sign-out text-red-400 text-2xl"></i> Sign Out
+                        </h2>
+                        <p class="text-slate-400 text-sm mb-6">Terminate your active session and return to the login
+                            page.</p>
+                        <button onclick="handleSignOut()"
+                            class="px-6 py-3 rounded-xl font-bold flex items-center gap-2 bg-red-500/10 border border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white transition-all duration-300">
+                            <i class="ph-bold ph-power"></i> Sign Out of CurricuForge
+                        </button>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        // --- UI Interactions ---
+        const slider = document.getElementById('time-input');
+        const display = document.getElementById('hours-display');
+        slider.addEventListener('input', (e) => { display.textContent = e.target.value + 'h'; });
+
+        function selectPace(paceVal) {
+            document.querySelectorAll('.choice-card').forEach(c => c.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+            document.getElementById('pace-input').value = paceVal;
+        }
+
+        function toggleModule(element) {
+            const parent = element.closest('.result-module');
+            parent.classList.toggle('open');
+        }
+
+        // View router
+        function switchView(viewId) {
+            document.querySelectorAll('.app-view').forEach(v => {
+                v.classList.remove('active-view');
+            });
+            document.querySelectorAll('.nav-item').forEach(v => {
+                if (v.getAttribute('data-target') === viewId) {
+                    v.classList.add('active');
+                } else {
+                    v.classList.remove('active');
+                }
+            });
+            document.getElementById(viewId).classList.add('active-view');
+
+            // Side-effects when switching to specific views
+            if (viewId === 'view-saved') renderSavedGrid();
+            if (viewId === 'view-settings') loadSettingsData();
+        }
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            if (!item.disabled) {
+                item.addEventListener('click', (e) => {
+                    const target = e.currentTarget.getAttribute('data-target');
+                    if (target) switchView(target);
+                });
+            }
+        });
+
+        // --- Core Application Logic ---
+        function parseJwt(t) { try { return JSON.parse(atob(t.split('.')[1])); } catch (_) { return null; } }
+
+        let globalCurriculums = {};
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token');
+            if (!token) { window.location.href = '/login'; return; }
+
+            const payload = parseJwt(token);
+            if (payload && payload.sub) document.getElementById('user-email').textContent = payload.sub;
+
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                localStorage.removeItem('token');
+                window.location.href = '/login';
+            });
+
+            await fetchLibrary(token);
+        });
+
+        async function fetchLibrary(token) {
+            try {
+                const res = await fetch('/api/curriculum/my-curriculums', { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!res.ok) throw new Error("Connection failed");
+                const data = await res.json();
+
+                let total = data.length;
+                document.getElementById('stat-total').textContent = total;
+                let modules = 0;
+                data.forEach(d => { if (d.output_json && d.output_json.timeline_weeks) modules += parseInt(d.output_json.timeline_weeks); });
+                document.getElementById('stat-modules').textContent = modules;
+
+                if (total === 0) {
+                    document.getElementById('dashboard-empty').classList.remove('hidden');
+                } else {
+                    renderGrid(data, 'dashboard-recent', 3);
+                    renderGrid(data, 'library-grid');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // --- Saved Roadmaps (localStorage-based bookmark) ---
+        function getSavedIds() {
+            try { return JSON.parse(localStorage.getItem('saved_roadmaps') || '[]'); } catch { return []; }
+        }
+
+        function toggleSave(id) {
+            let saved = getSavedIds();
+            const idx = saved.indexOf(id);
+            if (idx === -1) {
+                saved.push(id);
+                showToast('Roadmap saved! \u2713');
+            } else {
+                saved.splice(idx, 1);
+                showToast('Roadmap removed from saved.');
+            }
+            localStorage.setItem('saved_roadmaps', JSON.stringify(saved));
+            updateBookmarkBtn(id);
+        }
+
+        function updateBookmarkBtn(id) {
+            const saved = getSavedIds();
+            const btn = document.getElementById('bookmark-btn');
+            if (!btn) return;
+            const isSaved = saved.includes(id);
+            btn.title = isSaved ? 'Remove from Saved' : 'Save Roadmap';
+            btn.classList.toggle('text-cyber', isSaved);
+            btn.classList.toggle('border-cyber', isSaved);
+            btn.innerHTML = isSaved
+                ? '<i class="ph-fill ph-bookmark-simple"></i>'
+                : '<i class="ph-fill ph-bookmark-simple"></i>';
+        }
+
+        function renderSavedGrid() {
+            const saved = getSavedIds();
+            const grid = document.getElementById('saved-grid');
+            const empty = document.getElementById('saved-empty');
+            const savedData = Object.values(globalCurriculums).filter(c => saved.includes(c.id));
+
+            if (savedData.length === 0) {
+                grid.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+            let html = '';
+            savedData.forEach(c => {
+                const isSaved = true;
+                html += `
+                    <div class="glass-panel glass-panel-hover p-6 rounded-2xl flex flex-col justify-between cursor-pointer h-full" onclick="loadResultAndSwitch(${c.id})">
+                        <div>
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="w-10 h-10 rounded-lg bg-darkbg border border-white/10 flex items-center justify-center text-cyber flex-shrink-0">
+                                    <i class="ph-fill ph-bookmark-simple text-xl"></i>
+                                </div>
+                                <span class="bg-cyber/20 text-cyber border border-cyber/30 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest">${c.output_json.timeline_weeks}W</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-2 leading-tight tracking-tight">${c.input_json.role}</h3>
+                            <p class="text-sm text-slate-400 mb-6 truncate"><i class="ph-fill ph-folder text-slate-500 mr-1"></i> ${c.input_json.domain}</p>
+                        </div>
+                        <div class="pt-4 border-t border-white/10 flex justify-between items-center w-full">
+                            <span class="text-xs font-semibold text-slate-500">${new Date(c.created_at).toLocaleDateString()}</span>
+                            <button onclick="event.stopPropagation(); toggleSave(${c.id}); renderSavedGrid();" class="text-xs font-bold text-red-400 hover:text-red-300 flex items-center gap-1">
+                                <i class="ph-bold ph-trash"></i> Remove
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            grid.innerHTML = html;
+        }
+
+        function renderGrid(data, containerId, limit = null) {
+            const container = document.getElementById(containerId);
+            let html = '';
+            const loopData = limit ? data.slice(0, limit) : data;
+
+            loopData.forEach(c => {
+                globalCurriculums[c.id] = c;
+                html += `
+                    <div class="glass-panel glass-panel-hover p-6 rounded-2xl flex flex-col justify-between cursor-pointer h-full" onclick="loadResultAndSwitch(${c.id})">
+                        <div>
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="w-10 h-10 rounded-lg bg-darkbg border border-white/10 flex items-center justify-center text-cyber flex-shrink-0">
+                                    <i class="ph-fill ph-file-code text-xl"></i>
+                                </div>
+                                <span class="bg-brand/20 text-brand-light border border-brand/30 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-widest">${c.output_json.timeline_weeks}W</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-white mb-2 leading-tight tracking-tight">${c.input_json.role}</h3>
+                            <p class="text-sm text-slate-400 mb-6 truncate"><i class="ph-fill ph-folder text-slate-500 mr-1"></i> ${c.input_json.domain}</p>
+                        </div>
+                        <div class="pt-4 border-t border-white/10 flex justify-between items-center w-full">
+                            <span class="text-xs font-semibold text-slate-500">${new Date(c.created_at).toLocaleDateString()}</span>
+                            <span class="text-cyber text-xs font-bold group-hover:underline flex items-center gap-1">Open <i class="ph-bold ph-arrow-right"></i></span>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        let currentResultId = null;
+
+        function loadResultAndSwitch(id) {
+            const c = globalCurriculums[id];
+            if (!c) return;
+            currentResultId = id;
+
+            // Fill header
+            document.getElementById('res-role').textContent = c.input_json.role;
+            document.getElementById('res-domain').textContent = c.input_json.domain;
+            document.getElementById('res-time').textContent = c.input_json.time + 'h';
+            document.getElementById('res-weeks').textContent = c.output_json.timeline_weeks;
+            document.getElementById('res-prereqs').textContent = c.output_json.required_skills.join(', ');
+
+            // Update bookmark button state
+            updateBookmarkBtn(id);
+
+            // Fill insights
+            const mapList = (arr) => arr.map(i => `<li class="flex items-start gap-3"><i class="ph-bold ph-caret-right text-brand mt-1 shrink-0"></i><span>${i}</span></li>`).join('');
+            document.getElementById('res-gap').innerHTML = mapList(c.output_json.skill_gap_analysis);
+            document.getElementById('res-projects').innerHTML = mapList(c.output_json.suggested_projects);
+
+            // Fill Timeline Semantic Structure
+            let tlHtml = '';
+            c.output_json.weekly_breakdown.forEach(w => {
+                tlHtml += `
+                    <div class="result-module bg-darkbg-card/50 border border-white/10 rounded-2xl overflow-hidden shadow-glass group">
+                        <div class="p-6 md:px-8 cursor-pointer flex justify-between items-center hover:bg-white/5 transition-colors border-l-4 border-l-cyber" onclick="toggleModule(this)">
+                            <div>
+                                <span class="text-[10px] font-bold text-cyber uppercase tracking-widest block mb-2">Module Timeline: Week ${w.week}</span>
+                                <h4 class="text-lg md:text-xl font-bold text-white tracking-wide">${w.focus}</h4>
+                            </div>
+                            <div class="flex items-center gap-6">
+                                <span class="hidden md:inline-flex bg-slate-900 border border-slate-700 px-3 py-1 rounded-lg text-xs font-bold text-slate-300 gap-1.5"><i class="ph-fill ph-clock"></i> ~${w.estimated_hours}h</span>
+                                <i class="ph-bold ph-caret-down text-slate-500 text-xl caret-icon transition-transform"></i>
+                            </div>
+                        </div>
+                        <div class="module-content bg-[#0B1120] border-t border-white/5">
+                            <div class="p-6 md:p-8">
+                                <h5 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2"><i class="ph-fill ph-list-bullets text-lg"></i> Core Topics</h5>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    ${w.topics.map(t => `
+                                        <div class="bg-slate-900/80 border border-white/5 rounded-xl p-4 flex items-start gap-3 hover:border-brand/30 transition-colors">
+                                            <div class="w-6 h-6 rounded bg-brand/10 text-brand flex items-center justify-center shrink-0 mt-0.5"><i class="ph-bold ph-check"></i></div>
+                                            <span class="text-sm font-medium text-slate-300 leading-relaxed">${t}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('res-timeline').innerHTML = tlHtml;
+
+            // Optional: Initially open the first module
+            setTimeout(() => {
+                const first = document.querySelector('.result-module');
+                if (first) first.classList.add('open');
+            }, 100);
+
+            switchView('view-results');
+        }
+
+        async function handleGenerate() {
+            const token = localStorage.getItem('token');
+            const skills = document.getElementById('skills-input').value;
+            const domain = document.getElementById('domain-input').value;
+            const time = document.getElementById('time-input').value;
+            const role = document.getElementById('role-input').value;
+            const pace = document.getElementById('pace-input').value || "Advanced";
+
+            if (!skills || !domain || !time || !role) {
+                alert("Please fill all parameters to configure the architecture.");
+                return;
+            }
+
+            const loader = document.getElementById('ai-loader');
+            loader.classList.add('active');
+
+            try {
+                const formData = new FormData();
+                formData.append('skills', skills);
+                formData.append('domain', domain);
+                formData.append('role', role);
+                formData.append('time', time);
+                formData.append('pace', pace);
+
+                const res = await fetch('/api/curriculum/generate', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+
+                if (!res.ok) throw new Error("Generation failure.");
+                const newC = await res.json();
+
+                await fetchLibrary(token); // refresh
+
+                loader.classList.remove('active');
+                loadResultAndSwitch(newC.id);
+
+            } catch (err) {
+                console.error(err);
+                loader.classList.remove('active');
+                alert("Error generating curriculum. Ensure API connection.");
+            }
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('results-container');
+            const opt = {
+                margin: 0.5,
+                filename: 'CurricuForge_Path.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, logging: false },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            // Temporarily expand all modules for print
+            document.querySelectorAll('.result-module').forEach(m => m.classList.add('open'));
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                // Restore state
+                document.querySelectorAll('.result-module').forEach((m, i) => { if (i > 0) m.classList.remove('open') });
+            });
+        }
+
+        // --- Settings Logic ---
+        async function loadSettingsData() {
+            const token = localStorage.getItem('token');
+            try {
+                const res = await fetch('/api/auth/me', { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!res.ok) return;
+                const user = await res.json();
+                document.getElementById('settings-email').textContent = user.email;
+                document.getElementById('settings-created').textContent = new Date(user.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            } catch (err) { console.error(err); }
+        }
+
+        async function handleChangePassword() {
+            const token = localStorage.getItem('token');
+            const curr = document.getElementById('current-password').value;
+            const newP = document.getElementById('new-password').value;
+            const conf = document.getElementById('confirm-password').value;
+            const msg = document.getElementById('pw-message');
+
+            msg.classList.remove('hidden', 'text-green-400', 'text-red-400');
+
+            if (!curr || !newP || !conf) { msg.textContent = 'Please fill all fields.'; msg.classList.add('text-red-400'); return; }
+            if (newP.length < 6) { msg.textContent = 'New password must be at least 6 characters.'; msg.classList.add('text-red-400'); return; }
+            if (newP !== conf) { msg.textContent = 'New passwords do not match.'; msg.classList.add('text-red-400'); return; }
+
+            try {
+                const res = await fetch('/api/auth/change-password', {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ current_password: curr, new_password: newP })
+                });
+                const data = await res.json();
+                if (!res.ok) { msg.textContent = data.detail || 'Error updating password.'; msg.classList.add('text-red-400'); return; }
+                msg.textContent = '\u2713 Password updated successfully!';
+                msg.classList.add('text-green-400');
+                document.getElementById('current-password').value = '';
+                document.getElementById('new-password').value = '';
+                document.getElementById('confirm-password').value = '';
+            } catch (err) { msg.textContent = 'Network error. Try again.'; msg.classList.add('text-red-400'); }
+        }
+
+        // --- Feedback ---
+        let selectedRating = 5;
+        function setRating(val) {
+            selectedRating = val;
+            document.querySelectorAll('.star-btn').forEach((btn, i) => {
+                btn.style.opacity = (i < val) ? '1' : '0.3';
+            });
+        }
+        // Initialize stars
+        document.querySelectorAll('.star-btn').forEach((btn, i) => { btn.style.opacity = '1'; });
+
+        async function handleFeedback() {
+            const token = localStorage.getItem('token');
+            const text = document.getElementById('feedback-text').value.trim();
+            const msg = document.getElementById('feedback-message');
+            msg.classList.remove('hidden', 'text-green-400', 'text-red-400');
+
+            if (!text) { msg.textContent = 'Please write your feedback before submitting.'; msg.classList.add('text-red-400'); return; }
+
+            try {
+                const res = await fetch('/api/auth/feedback', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text, rating: selectedRating })
+                });
+                const data = await res.json();
+                if (!res.ok) { msg.textContent = data.detail || 'Error submitting feedback.'; msg.classList.add('text-red-400'); return; }
+                msg.textContent = '\u2713 ' + data.message;
+                msg.classList.add('text-green-400');
+                document.getElementById('feedback-text').value = '';
+            } catch (err) { msg.textContent = 'Network error. Try again.'; msg.classList.add('text-red-400'); }
+        }
+
+        function handleSignOut() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('saved_roadmaps');
+            window.location.href = '/login';
+        }
+
+        // --- Toast Notification ---
+        function showToast(message) {
+            let t = document.getElementById('toast');
+            if (!t) {
+                t = document.createElement('div');
+                t.id = 'toast';
+                t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;background:rgba(30,41,59,0.95);border:1px solid rgba(79,70,229,0.5);backdrop-filter:blur(16px);color:white;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 8px 32px rgba(0,0,0,0.3);transform:translateY(100px);opacity:0;transition:all 0.4s cubic-bezier(0.16,1,0.3,1)';
+                document.body.appendChild(t);
+            }
+            t.textContent = message;
+            setTimeout(() => { t.style.transform = 'translateY(0)'; t.style.opacity = '1'; }, 10);
+            setTimeout(() => { t.style.transform = 'translateY(100px)'; t.style.opacity = '0'; }, 3000);
+        }
+    </script>
+</body>
+
+</html>
