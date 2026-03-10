@@ -1,5 +1,5 @@
 **🚀 CurricuForge**
-Generative AI–Powered Curriculum Design System
+**Generative AI–Powered Curriculum Design System**
 
 
 CurricuForge is an AI-powered curriculum design platform that automatically generates structured academic programs using Generative AI (Gemini). The system allows educators and institutions to design industry-aligned curricula by simply providing a few educational parameters.
