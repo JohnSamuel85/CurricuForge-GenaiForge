@@ -181,7 +181,7 @@ Cloud deployment for global access
 Clone the repository
 
 **git clone https://github.com/JohnSamuel85/CurricuForge-GenaiForge.git
-cd curricuforge**
+cd CurricuForge-GenaiForge**
 
 Create virtual environment
 
@@ -202,7 +202,7 @@ Install dependencies
 **pip install -r requirements.txt**
 
 **Create .env file **
-**write GEMINI_API_KEY='your_api_key_here'**
+**write GEMINI_API_KEY='your_api_key_here'**(enter your gemini_api_key)
 
 ▶️ Running the Project
 
